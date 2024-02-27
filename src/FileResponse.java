@@ -9,6 +9,7 @@ public class FileResponse implements Response {
 
   /**
    * Constructeur de la classe
+   * 
    * @param file le fichier à envoyer au serveur
    * @param mime le type mime du fichier à envoyer au serveur
    */
@@ -32,7 +33,7 @@ public class FileResponse implements Response {
       while (scanner.hasNextLine()) {
         p.println(scanner.nextLine() + System.lineSeparator());
       }
-      
+
       // Fermeture du scanner
       scanner.close();
     } catch (FileNotFoundException e) {

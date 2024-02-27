@@ -11,7 +11,11 @@ public interface Response {
    * @return
    */
   public static Response getResponse(String fileName) {
-    File file = new File(fileName);
+    if (fileName == "") {
+      fileName = "index.html";
+    }
+    System.out.println(fileName);
+    File file = new File("html/" + fileName);
     if (!file.exists()) {
       return Error404.getInstance();
     }

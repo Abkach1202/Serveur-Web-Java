@@ -27,7 +27,7 @@ public class Error404 implements Response {
     p.println("HTTP/1.1 404 Not Found");
     p.println("Content-Type: text/html");
     p.println();
-    
+
     // Envoie de l'erreur 404
     p.println("<html><body><h1>404 Not Found</h1>" +
         "<p>The requested file was not found on this server.</p></body></html>");

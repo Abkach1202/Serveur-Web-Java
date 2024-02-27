@@ -35,10 +35,16 @@ public class ClientHandler implements Runnable {
     // Lecture de la ligne GET
     do {
       line = reader.readLine();
-    } while (!line.startsWith("GET"));
-
+    } while (!line.startsWith("GET") && line != null);
+    
+    // Si on a pas une requête Get
+    if (line == null) {
+      return Response.getResponse("notFoundFile");
+    }
+    
     // Extraction du nom de fichier
     requestedFile = line.split(" ")[1];
+    requestedFile = requestedFile.substring(1);
     return Response.getResponse(requestedFile);
   }
 
@@ -60,5 +66,4 @@ public class ClientHandler implements Runnable {
       System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
     }
   }
-
 }
