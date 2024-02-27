@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.util.concurrent.*;
 
 // Classe représentant le serveur dans le projet
@@ -10,8 +9,6 @@ public class Server {
 
   // ServerSocket pour ecouter les nouveaux clients
   private final ServerSocket listener;
-  // Liste de clients connectés au serveur
-  private final List<ClientHandler> clientList;
   // Executeur des threads liés aux client
   private final ExecutorService pool;
 
@@ -23,7 +20,6 @@ public class Server {
    */
   public Server(int port) throws IOException {
     this.listener = new ServerSocket(port);
-    this.clientList = new ArrayList<>();
     this.pool = Executors.newWorkStealingPool();
   }
 
@@ -34,5 +30,46 @@ public class Server {
    */
   public Server() throws IOException {
     this(DEFAULT_PORT);
+  }
+
+  /**
+   * Ecoute les connexions de nouveaux clients et leur crée un thread
+   */
+  public void listen() {
+    System.out.println("Server started listening localhost::" + listener.getLocalPort() + System.lineSeparator() +
+        "Waiting for clients...");
+    try {
+      // La boucle d'écoute
+      while (true) {
+        ClientHandler client;
+        Socket clientSocket = listener.accept();
+        System.out.println("Client connected succesfully");
+
+        // Création et execution d'un nouveau thread
+        client = new ClientHandler(clientSocket);
+        pool.submit(client);
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
+      serverShutdown();
+    }
+  }
+
+  /**
+   * Arrête les threads et stop le serveur
+   */
+  public void serverShutdown() {
+    System.out.println("Arrêt du serveur...");
+    System.out.println("Arrêt des threads");
+    // Arret des threads
+    pool.shutdown();
+    try {
+      // Attente de 10 secondes pour les threads un peu longs
+      if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+        pool.shutdownNow();
+      }
+    } catch (InterruptedException ie) {
+      pool.shutdownNow();
+    }
   }
 }
