@@ -23,6 +23,8 @@ public class Error404 implements Response {
 
   @Override
   public void respond(PrintWriter p) {
+    System.out.println("Sending an 404 error...");
+    
     // Envoie de l'entête HTTP
     p.println("HTTP/1.1 404 Not Found");
     p.println("Content-Type: text/html");
