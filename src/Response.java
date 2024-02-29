@@ -56,17 +56,13 @@ public interface Response {
     if (mimeType.startsWith("text")) {
       return new TextFile(file, mimeType);
     }
-    try {
-      return new ImageFile(file, mimeType);
-    } catch (IOException e) {
-      return Error404.getInstance();
-    }
+    return new ImageFile(file, mimeType);
   }
 
   /**
    * Cette fonction donne une reponse au requête en écrivant au PrintWriter
    * 
-   * @param o l'OutputStream par leqeuel on envoie le message
+   * @param o l'outputStream par leqeuel on envoie le message
    */
   public void respond(OutputStream o);
 }

@@ -59,7 +59,8 @@ public class ClientHandler implements Runnable {
       reader.close();
       clientSocket.close();
     } catch (IOException e) {
-      System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
+      System.err.println(e.getMessage());
+      e.printStackTrace();
     }
   }
 }

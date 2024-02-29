@@ -17,10 +17,15 @@ public class ImageFile implements Response {
    * @param imageFile le fichier image à envoyer au client
    * @param mime      le type mime du fichier à envoyer au client
    */
-  public ImageFile(File imageFile, String mime) throws IOException {
+  public ImageFile(File imageFile, String mime) {
     this.imageFile = imageFile;
     this.mime = mime;
-    this.imageSender = ImageIO.read(imageFile);
+    try {
+      this.imageSender = ImageIO.read(imageFile);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -38,7 +43,8 @@ public class ImageFile implements Response {
       // Fermeture du PrintWriter
       sender.close();
     } catch (IOException e) {
-      System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
+      System.err.println(e.getMessage());
+      e.printStackTrace();
     }
   }
 }

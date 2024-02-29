@@ -38,7 +38,8 @@ public class TextFile implements Response {
       sender.close();
       scanner.close();
     } catch (FileNotFoundException e) {
-      System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
+      System.err.println(e.getMessage());
+      e.printStackTrace();
     }
   }
 
