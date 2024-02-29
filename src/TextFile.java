@@ -11,17 +11,17 @@ public class TextFile implements Response {
   /**
    * Constructeur de la classe
    * 
-   * @param textFile le fichier à envoyer au client
+   * @param textFile le chemin vers le fichier à envoyer au client
    * @param mime     le type mime du fichier à envoyer au client
    */
-  public TextFile(File textFile, String mime) {
-    this.textFile = textFile;
+  public TextFile(String textFile, String mime) {
+    this.textFile = new File(textFile);
     this.mime = mime;
   }
 
   @Override
   public void respond(OutputStream o) {
-    System.out.println("Sending " + textFile.getPath() + "...");
+    System.out.println("Sending a text file with " + mime + " MIME type...");
     PrintWriter sender = new PrintWriter(o, true);
     try {
       Scanner scanner = new Scanner(textFile);

@@ -6,29 +6,28 @@ public class ImageProxy implements Response {
   // Le cache des images déjà chargées
   private static Map<String, ImageFile> cache = new HashMap<>();
   // Le fichier image à envoyer au client
-  private File imageFile;
+  private String imagePath;
   // Le type MIME du fichier
   private String mime;
 
   /**
    * Constructeur de la classe
    * 
-   * @param imageFile le fichier image à envoyer au client
+   * @param imagePath le chemin vers l'image à envoyer au client
    * @param mime      le type mime du fichier à envoyer au client
    */
-  public ImageProxy(File imageFile, String mime) {
-    this.imageFile = imageFile;
+  public ImageProxy(String imagePath, String mime) {
+    this.imagePath = imagePath;
     this.mime = mime;
   }
 
   @Override
   public void respond(OutputStream o) {
     synchronized (cache) {
-      if (!cache.containsKey(imageFile.getPath())) {
-        cache.put(imageFile.getPath(), new ImageFile(imageFile, mime));
+      if (!cache.containsKey(imagePath)) {
+        cache.put(imagePath, new ImageFile(imagePath, mime));
       }
     }
-    cache.get(imageFile.getPath()).respond(o);
+    cache.get(imagePath).respond(o);
   }
-
 }

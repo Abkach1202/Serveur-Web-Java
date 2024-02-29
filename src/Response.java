@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.file.*;
 
 // Interface représentant une reponse à une requête http
 public interface Response {
@@ -48,15 +49,16 @@ public interface Response {
     if (fileName == "") {
       fileName = "index.html";
     }
-    File file = new File("html/" + fileName);
-    if (!file.exists() && !file.isDirectory()) {
+    fileName = "html/" + fileName;
+    Path file = Paths.get(fileName);
+    if (!Files.exists(file) && !Files.isDirectory(file)) {
       return Error404.getInstance();
     }
     String mimeType = getMimeType(fileName);
     if (mimeType.startsWith("text")) {
-      return new TextFile(file, mimeType);
+      return new TextFile(fileName, mimeType);
     }
-    return new ImageProxy(file, mimeType);
+    return new ImageProxy(fileName, mimeType);
   }
 
   /**

@@ -4,24 +4,21 @@ import javax.imageio.ImageIO;
 
 // Classe permettant de répondre à une requête de fichier image
 public class ImageFile implements Response {
-  // Le fichier image à envoyer au client
-  private File imageFile;
   // Le type MIME du fichier
   private String mime;
   // Le bufferedImage de l'image
-  private BufferedImage imageSender;
+  private BufferedImage bufferedImage;
 
   /**
    * Constructeur de la classe
    * 
-   * @param imageFile le fichier image à envoyer au client
+   * @param imagePath le chemin vers l'image à envoyer au client
    * @param mime      le type mime du fichier à envoyer au client
    */
-  public ImageFile(File imageFile, String mime) {
-    this.imageFile = imageFile;
+  public ImageFile(String imagePath, String mime) {
     this.mime = mime;
     try {
-      this.imageSender = ImageIO.read(imageFile);
+      this.bufferedImage = ImageIO.read(new File(imagePath));
     } catch (IOException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
@@ -30,16 +27,16 @@ public class ImageFile implements Response {
 
   @Override
   public void respond(OutputStream o) {
-    System.out.println("Sending " + imageFile.getPath() + "...");
+    System.out.println("Sending an image with '" + mime + "' MIME type...");
     PrintWriter sender = new PrintWriter(o, true);
     try {
       // Envoie de l'entête HTTP
       sender.println("HTTP/1.1 200 OK");
       sender.println("Content-Type: " + mime);
-      sender.println("Content-Length: " + imageFile.length());
       sender.println();
       // Envoie du contenu de l'image
-      ImageIO.write(imageSender, mime.split("/")[1], o);
+      ImageIO.write(bufferedImage, mime.split("/")[1], o);
+      o.flush();
       // Fermeture du PrintWriter
       sender.close();
     } catch (IOException e) {

@@ -22,6 +22,7 @@ public class Error404 implements Response {
   }
 
   public void respond(OutputStream clientStream) {
+    System.out.println("Sending an 404 error...");
     PrintWriter sender = new PrintWriter(clientStream);
     // Envoie de l'entête HTTP
     sender.println("HTTP/1.1 404 Not Found");
