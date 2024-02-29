@@ -56,7 +56,7 @@ public interface Response {
     if (mimeType.startsWith("text")) {
       return new TextFile(file, mimeType);
     }
-    return new ImageFile(file, mimeType);
+    return new ImageProxy(file, mimeType);
   }
 
   /**
