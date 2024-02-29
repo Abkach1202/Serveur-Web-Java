@@ -3,7 +3,9 @@ import java.io.*;
 // Interface représentant une reponse à une requête http
 public interface Response {
   /**
-   * Elle permet d'avoir le type MIME du fichier passée en paramètre en fonction de son nom
+   * Elle permet d'avoir le type MIME du fichier passée en paramètre en fonction
+   * de son nom
+   * 
    * @param fileName Le nom du fichier dont on veut avoir le type MIME
    * @return Le type MIME du fichier en fonction de son extension
    */
@@ -19,11 +21,22 @@ public interface Response {
         return "text/css";
       case "js":
         return "text/javascript";
+      case "gif":
+        return "image/gif";
+      case "png":
+        return "image/png";
+      case "jpeg":
+      case "jpg":
+        return "image/jpeg";
+      case "bmp":
+        return "image/bmp";
+      case "webp":
+        return "image/webp";
       default:
         return "text/plain";
     }
   }
-  
+
   /**
    * Elle permet d'avoir la bonne instance de l'interface Response en fonction de
    * l'existance du fichier et de son extension
@@ -36,16 +49,24 @@ public interface Response {
       fileName = "index.html";
     }
     File file = new File("html/" + fileName);
-    if (!file.exists()) {
+    if (!file.exists() && !file.isDirectory()) {
       return Error404.getInstance();
     }
-    return new TextFile(file, getMimeType(fileName));
+    String mimeType = getMimeType(fileName);
+    if (mimeType.startsWith("text")) {
+      return new TextFile(file, mimeType);
+    }
+    try {
+      return new ImageFile(file, mimeType);
+    } catch (IOException e) {
+      return Error404.getInstance();
+    }
   }
 
   /**
    * Cette fonction donne une reponse au requête en écrivant au PrintWriter
    * 
-   * @param p le PrintWriter par leqeuel on envoie le message
+   * @param o l'OutputStream par leqeuel on envoie le message
    */
-  public void respond(PrintWriter p);
+  public void respond(OutputStream o);
 }

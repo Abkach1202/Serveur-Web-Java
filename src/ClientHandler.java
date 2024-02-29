@@ -5,10 +5,8 @@ import java.io.*;
 public class ClientHandler implements Runnable {
   // Le socket de communication avec le client
   private final Socket clientSocket;
-  // Le flux d'entrée pour recevoir les messages du client
+  // Le flux de lecture de la requête du client
   private final BufferedReader reader;
-  // Le flux de sortie pour envoyer les messages au client
-  private final PrintWriter sender;
 
   /**
    * Constructeur de la classe
@@ -20,7 +18,6 @@ public class ClientHandler implements Runnable {
   public ClientHandler(Socket clientSocket) throws IOException {
     this.clientSocket = clientSocket;
     this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    this.sender = new PrintWriter(clientSocket.getOutputStream(), true);
   }
 
   /**
@@ -36,12 +33,12 @@ public class ClientHandler implements Runnable {
     do {
       line = reader.readLine();
     } while (!line.startsWith("GET") && line != null);
-    
+
     // Si on a pas une requête Get
     if (line == null) {
       return Response.getResponse("notFoundFile");
     }
-    
+
     // Extraction du nom de fichier
     requestedFile = line.split(" ")[1];
     requestedFile = requestedFile.substring(1);
@@ -55,12 +52,11 @@ public class ClientHandler implements Runnable {
       Response response = readRequest();
 
       // Envoie de la reponse au client
-      response.respond(sender);
+      response.respond(clientSocket.getOutputStream());
 
       // Fermeture des flux et du socket
-      System.out.println("Deconnexion of client.." + System.lineSeparator() + System.lineSeparator());
+      System.out.println("Deconnexion of client.." + System.lineSeparator());
       reader.close();
-      sender.close();
       clientSocket.close();
     } catch (IOException e) {
       System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());

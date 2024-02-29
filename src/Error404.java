@@ -22,16 +22,26 @@ public class Error404 implements Response {
   }
 
   @Override
-  public void respond(PrintWriter p) {
+<<<<<<< Updated upstream
+  public void respond(OutputStream o) {
     System.out.println("Sending an 404 error...");
+    PrintWriter sender = new PrintWriter(o, true);
+
+=======
+  public void respond(OutputStream clientStream) {
+    PrintWriter p = new PrintWriter(clientStream);
     
+>>>>>>> Stashed changes
     // Envoie de l'entête HTTP
-    p.println("HTTP/1.1 404 Not Found");
-    p.println("Content-Type: text/html");
-    p.println();
+    sender.println("HTTP/1.1 404 Not Found");
+    sender.println("Content-Type: text/html");
+    sender.println();
 
     // Envoie de l'erreur 404
-    p.println("<html><body><h1>404 Not Found</h1>" +
+    sender.println("<html><body><h1>404 Not Found</h1>" +
         "<p>The requested file was not found on this server.</p></body></html>");
+
+    // Fermeture du PrintWriter
+    sender.close();
   }
 }
