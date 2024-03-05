@@ -1,8 +1,8 @@
 import java.io.*;
 import java.util.Scanner;
 
-// Classe permettant de répondre à une requête de fichier texte
-public class TextBody implements Response {
+// Classe permettant d'envoyer un fichier texte au client
+public class FileSender {
   // Le fichier à envoyer au client
   private Scanner scanner;
 
@@ -11,7 +11,7 @@ public class TextBody implements Response {
    * 
    * @param file le fichier à envoyer au client
    */
-  public TextBody(File file) {
+  public FileSender(File file) {
     try {
       this.scanner = new Scanner(file);
     } catch (FileNotFoundException e) {
@@ -20,8 +20,12 @@ public class TextBody implements Response {
     }
   }
 
-  @Override
-  public void respond(OutputStream o) {
+  /**
+   * Envoie le contenu du fichier au client
+   * 
+   * @param o le flux de sortie vers le client
+   */
+  public void send(OutputStream o) {
     PrintWriter sender = new PrintWriter(o, true);
     // Envoie du contenu du fichier
     while (scanner.hasNextLine()) {

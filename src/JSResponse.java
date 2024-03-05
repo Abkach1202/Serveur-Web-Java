@@ -4,8 +4,10 @@ import java.io.*;
 public class JSResponse implements Response {
   // Le fichier à envoyer au client
   private File JSFile;
-  // Le corps de la réponse
-  private TextBody body;
+  // L'en-tête de la réponse
+  private StringBuilder header;
+  // l'Envoyeur de fichier texte
+  private FileSender fileSender;
 
   /**
    * Constructeur de la classe
@@ -14,7 +16,19 @@ public class JSResponse implements Response {
    */
   public JSResponse(String path) {
     this.JSFile = new File(path);
-    this.body = new TextBody(JSFile);
+    this.fileSender = new FileSender(JSFile);
+    this.header = new StringBuilder(
+      "HTTP/1.1 200 OK" + System.lineSeparator() +
+      "Content-Type: text/javascript" + System.lineSeparator() +
+      "Content-Length: " + JSFile.length() + System.lineSeparator() +
+      "Connection: keep-alive" + System.lineSeparator() +
+      "Cache-Control: s-maxage=300, public, max-age=0"
+    );
+  }
+
+  @Override
+  public void setCookie(String key, String value, int maxAge) {
+    header.append(System.lineSeparator() + "Set-Cookie: " + key + "=" + value + "; Max-Age=" + maxAge);
   }
 
   @Override
@@ -22,14 +36,10 @@ public class JSResponse implements Response {
     System.out.println("Sending " + JSFile.getName() + " to the client...");
     PrintWriter sender = new PrintWriter(o, true);
     // Envoie de l'entête HTTP
-    sender.println("HTTP/1.1 200 OK");
-    sender.println("Content-Type: text/javascript");
-    sender.println("Content-Length: " + JSFile.length());
-    sender.println("Connection: keep-alive");
-    sender.println("Cache-Control: s-maxage=300, public, max-age=0");
+    sender.println(header.toString());
     sender.println();
     // Délégation de l'envoi du contenu du fichier
-    body.respond(o);
+    fileSender.send(o);
   }
 
 }

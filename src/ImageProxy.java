@@ -5,6 +5,7 @@ import java.util.*;
 public class ImageProxy implements Response {
   // Le cache des images déjà chargées
   private static Map<String, Response> cache = new HashMap<>();
+
   // Le fichier image à envoyer au client
   private String path;
   // Le format de l'image
@@ -19,6 +20,20 @@ public class ImageProxy implements Response {
   public ImageProxy(String path, String format) {
     this.path = path;
     this.format = format;
+  }
+
+  @Override
+  public void setCookie(String key, String value, int maxAge) {
+    synchronized (cache) {
+      if (!cache.containsKey(path)) {
+        if (format == "png") {
+          cache.put(path, new PNGResponse(path));
+        } else if (format == "jpeg") {
+          cache.put(path, new JPGResponse(path));
+        }
+      }
+    }
+    cache.get(path).setCookie(key, value, maxAge);
   }
 
   @Override

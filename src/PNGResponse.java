@@ -4,8 +4,10 @@ import java.io.*;
 public class PNGResponse implements Response {
   // L'image à envoyer au client
   private File PNGFile;
-  // Le corps de la réponse
-  private ImageBody body;
+  // L'en-tête de la réponse
+  private StringBuilder header;
+  // l'Envoyeur d'image
+  private ImageSender imageSender;
 
   /**
    * Constructeur de la classe
@@ -14,7 +16,18 @@ public class PNGResponse implements Response {
    */
   public PNGResponse(String path) {
     this.PNGFile = new File(path);
-    this.body = new ImageBody(PNGFile, "png");
+    this.imageSender = new ImageSender(PNGFile, "png");
+    this.header = new StringBuilder(
+      "HTTP/1.1 200 OK" + System.lineSeparator() +
+      "Content-Type: image/png" + System.lineSeparator() +
+      "Connection: keep-alive" + System.lineSeparator() +
+      "Cache-Control: s-maxage=300, public, max-age=0"
+    );
+  }
+
+  @Override
+  public void setCookie(String key, String value, int maxAge) {
+    header.append(System.lineSeparator() + "Set-Cookie: " + key + "=" + value + "; Max-Age=" + maxAge);
   }
 
   @Override
@@ -22,12 +35,9 @@ public class PNGResponse implements Response {
     System.out.println("Sending " + PNGFile.getName() + " to the client...");
     PrintWriter sender = new PrintWriter(o, true);
     // Envoie de l'entête HTTP
-    sender.println("HTTP/1.1 200 OK");
-    sender.println("Content-Type: image/png");
-    sender.println("Connection: keep-alive");
-    sender.println("Cache-Control: s-maxage=300, public, max-age=0");
+    sender.println(header.toString());
     sender.println();
     // Délégation de l'envoi du contenu de l'image
-    body.respond(o);
+    imageSender.send(o);
   }
 }

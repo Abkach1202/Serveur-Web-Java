@@ -25,27 +25,35 @@ public interface Response {
     if (path == "") {
       path = "index.html";
     }
-    path = "html/" + path;
-    if (isfileNotFound(path)) {
-      return Error404.getInstance();
+    if (path == null || isfileNotFound("html/" + path)) {
+      return new Error404();
     }
     String extension = path.substring(path.lastIndexOf('.') + 1);
     // Renvoie la bonne instance en fonction de l'extension
     switch (extension) {
       case "html":
-        return new HTMLResponse(path);
+        return new HTMLResponse("html/" + path);
       case "css":
-        return new CSSResponse(path);
+        return new CSSResponse("html/" + path);
       case "js":
-        return new JSResponse(path);
+        return new JSResponse("html/" + path);
       case "png":
-        return new ImageProxy(path, "png");
+        return new ImageProxy("html/" + path, "png");
       case "jpg":
-        return new ImageProxy(path, "jpeg");
+        return new ImageProxy("html/" + path, "jpeg");
       default:
-        return new UnknownResponse(path);
+        return new UnknownResponse("html/" + path);
     }
   }
+
+  /**
+   * Elle permet de savoir si le cookie existe
+   * 
+   * @param key le nom du cookie
+   * @param value la valeur du cookie
+   * @param maxAge la durée de vie du cookie
+   */
+  public void setCookie(String key, String value, int maxAge);
 
   /**
    * Cette fonction donne une reponse au requête en écrivant au PrintWriter
