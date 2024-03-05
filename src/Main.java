@@ -9,7 +9,8 @@ public class Main {
       Server server = new Server(8080);
       server.listen();
     } catch (IOException e) {
-      System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
+      System.err.println(e.getMessage());
+      e.printStackTrace();
     }
   }
 }

@@ -4,61 +4,47 @@ import java.nio.file.*;
 // Interface représentant une reponse à une requête http
 public interface Response {
   /**
-   * Elle permet d'avoir le type MIME du fichier passée en paramètre en fonction
-   * de son nom
+   * Elle permet de savoir si le fichier n'existe pas
    * 
-   * @param fileName Le nom du fichier dont on veut avoir le type MIME
-   * @return Le type MIME du fichier en fonction de son extension
+   * @param path le chemin vers le fichier
+   * @return true si le fichier n'existe pas, false sinon
    */
-  private static String getMimeType(String fileName) {
-    int index = fileName.lastIndexOf('.');
-    String extension = fileName.substring(index + 1);
-
-    // Renvoie le mime en fonction du nom de fichier
-    switch (extension) {
-      case "html":
-        return "text/html";
-      case "css":
-        return "text/css";
-      case "js":
-        return "text/javascript";
-      case "gif":
-        return "image/gif";
-      case "png":
-        return "image/png";
-      case "jpeg":
-      case "jpg":
-        return "image/jpeg";
-      case "bmp":
-        return "image/bmp";
-      case "webp":
-        return "image/webp";
-      default:
-        return "text/plain";
-    }
+  private static boolean isfileNotFound(String path) {
+    Path file = Paths.get(path);
+    return !Files.exists(file) && !Files.isDirectory(file);
   }
 
   /**
    * Elle permet d'avoir la bonne instance de l'interface Response en fonction de
    * l'existance du fichier et de son extension
    * 
-   * @param fileName
-   * @return
+   * @param path le chemin vers le fichier dont on veut avoir la reponse
+   * @return Une instance de l'interface Response qui repond à la requête
    */
-  public static Response getResponse(String fileName) {
-    if (fileName == "") {
-      fileName = "index.html";
+  public static Response getResponse(String path) {
+    if (path == "") {
+      path = "index.html";
     }
-    fileName = "html/" + fileName;
-    Path file = Paths.get(fileName);
-    if (!Files.exists(file) && !Files.isDirectory(file)) {
+    path = "html/" + path;
+    if (isfileNotFound(path)) {
       return Error404.getInstance();
     }
-    String mimeType = getMimeType(fileName);
-    if (mimeType.startsWith("text")) {
-      return new TextFile(fileName, mimeType);
+    String extension = path.substring(path.lastIndexOf('.') + 1);
+    // Renvoie la bonne instance en fonction de l'extension
+    switch (extension) {
+      case "html":
+        return new HTMLResponse(path);
+      case "css":
+        return new CSSResponse(path);
+      case "js":
+        return new JSResponse(path);
+      case "png":
+        return new ImageProxy(path, "png");
+      case "jpg":
+        return new ImageProxy(path, "jpeg");
+      default:
+        return new UnknownResponse(path);
     }
-    return new ImageProxy(fileName, mimeType);
   }
 
   /**

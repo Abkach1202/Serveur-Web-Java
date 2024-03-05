@@ -50,8 +50,8 @@ public class Server {
         pool.submit(client);
       }
     } catch (IOException e) {
-      System.err.println(e.getMessage() + System.lineSeparator() + e.getStackTrace());
-      serverShutdown();
+      System.err.println(e.getMessage());
+      e.printStackTrace();
     }
   }
 
