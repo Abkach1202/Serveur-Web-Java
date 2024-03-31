@@ -99,6 +99,7 @@ public class ClientHandler implements Runnable {
     // Création ou Prologation de la session au niveau du serveur
     if (!cookies.containsKey("sessionId")) {
       sessionId = sessionManager.createSession();
+      cookies.put("sessionId", sessionId);
     } else {
       sessionId = cookies.get("sessionId");
       sessionManager.updateSession(sessionId);
@@ -119,7 +120,7 @@ public class ClientHandler implements Runnable {
       // Gestion de la session du client
       manageSession(response);
       // Envoie de la reponse au client
-      response.respond(clientSocket.getOutputStream());
+      response.respond(clientSocket.getOutputStream(), cookies);
       // Fermeture du socket
       System.out.println("Deconnexion of client..." + System.lineSeparator());
       clientSocket.close();

@@ -54,9 +54,9 @@ public class ImageProxy implements Response {
   }
 
   @Override
-  public void respond(OutputStream o) {
+  public void respond(OutputStream o, Map<String, String> cookies) {
     if (no_image) {
-      cache.get("no-image").respond(o);
+      cache.get("no-image").respond(o, cookies);
       return;
     }
     synchronized (cache) {
@@ -64,6 +64,6 @@ public class ImageProxy implements Response {
         cache.put(path, new ImageResponse(path, extension));
       }
     }
-    cache.get(path).respond(o);
+    cache.get(path).respond(o, cookies);
   }
 }

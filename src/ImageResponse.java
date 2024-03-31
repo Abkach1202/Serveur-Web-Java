@@ -1,13 +1,17 @@
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Map;
+
 import javax.imageio.ImageIO;
 
 // Classe permettant d'envoyer une image au client
 public class ImageResponse implements Response {
   // L'en-tête de la réponse
   private Header header;
+  // L'extension de l'image
+  private String extension;
   // Le byteArrayOutputStream de l'image
-  private ByteArrayOutputStream baos;
+  private BufferedImage buffer;
 
   /**
    * Constructeur de la classe
@@ -16,14 +20,9 @@ public class ImageResponse implements Response {
    * @param extension l'extension de l'image à envoyer au client
    */
   public ImageResponse(BufferedImage buffer, String extension) {
-    try {
-      this.baos = new ByteArrayOutputStream();
-      ImageIO.write(buffer, extension, baos);
-      this.header = new Header(extension, baos.size(), Response.OK);
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-      e.printStackTrace();
-    }
+    this.buffer = buffer;
+    this.header = new Header(extension, -1, Response.OK);
+    this.extension = extension;
   }
 
   /**
@@ -34,9 +33,9 @@ public class ImageResponse implements Response {
    */
   public ImageResponse(String path, String extension) {
     try {
-      this.baos = new ByteArrayOutputStream();
-      ImageIO.write(ImageIO.read(new File(path)), extension, baos);
-      this.header = new Header(extension, baos.size(), Response.OK);
+      this.buffer = ImageIO.read(new File(path));
+      this.header = new Header(extension, -1, Response.OK);
+      this.extension = extension;
     } catch (IOException e) {
       System.err.println(e.getMessage());
       e.printStackTrace();
@@ -53,13 +52,15 @@ public class ImageResponse implements Response {
    * 
    * @param o le flux de sortie vers le client
    */
-  public void respond(OutputStream o) {
+  public void respond(OutputStream o, Map<String, String> cookies) {
     System.out.println("Sending image to the client...");
     PrintWriter sender = new PrintWriter(o, true);
     // Envoie de l'entête HTTP
     sender.println(header);
     // Envoie du contenu de l'image
     try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ImageIO.write(buffer, extension, baos);
       baos.writeTo(o);
       o.flush();
       // Fermeture du PrintWriter

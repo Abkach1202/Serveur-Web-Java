@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Map;
 import java.util.Scanner;
 
 // Classe permettant d'envoyer un fichier texte au client
@@ -28,7 +29,7 @@ public class TextResponse implements Response {
    * 
    * @param o le flux de sortie vers le client
    */
-  public void respond(OutputStream o) {
+  public void respond(OutputStream o, Map<String, String> cookies) {
     PrintWriter sender = new PrintWriter(o, true);
     try (Scanner scanner = new Scanner(this.file)) {
       // Envoie de l'entête HTTP

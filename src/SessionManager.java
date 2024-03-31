@@ -40,6 +40,14 @@ public class SessionManager {
     return sessionId;
   }
 
+  public Map<String, String> getDatas(String sessionId) {
+    Map<String, String> convertedData = new HashMap<>();
+    for (String key : sessions.get(sessionId).keySet()) {
+      convertedData.put(key, String.valueOf(sessions.get(sessionId).get(key)));
+    }
+    return convertedData;
+  }
+
   /**
    * Permet de définir un attribut dans une session
    * 

@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Map;
 
 // Classe permettant de répondre à une requête de fichier introuvable
 public class NotFoundResponse implements Response {
@@ -18,9 +19,9 @@ public class NotFoundResponse implements Response {
   }
 
   @Override
-  public void respond(OutputStream clientStream) {
+  public void respond(OutputStream o, Map<String, String> cookies) {
     System.out.println("Sending an 404 error...");
-    PrintWriter sender = new PrintWriter(clientStream);
+    PrintWriter sender = new PrintWriter(o, true);
     // Envoie de l'entête HTTP
     sender.print(header);
     // Envoie de l'erreur 404

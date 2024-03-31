@@ -55,7 +55,7 @@ public interface Response {
     }
     // Si c'est un template freeMarker
     if (extension.equals("dlb") || extension.equals("ftl")) {
-      return new TextResponse(DEFAULT_SOURCE + path, extension);
+      return new FreemarkerResponse(path, params);
     }
     // Si c'est un fichier texte
     return new TextResponse(DEFAULT_SOURCE + path, extension);
@@ -75,5 +75,5 @@ public interface Response {
    * 
    * @param o l'outputStream par leqeuel on envoie le message
    */
-  public void respond(OutputStream o);
+  public void respond(OutputStream o, Map<String, String> cookies);
 }
