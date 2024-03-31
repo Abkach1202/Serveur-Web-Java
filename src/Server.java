@@ -11,16 +11,40 @@ public class Server {
   private final ServerSocket listener;
   // Executeur des threads liés aux client
   private final ExecutorService pool;
+  // Boolean pour savoir si on affiche les images
+  private final boolean no_image;
 
   /**
    * Constructeur du serveur avec le port spécifiée
+   * 
+   * @param port     Le port d'écoute du serveur
+   * @param no_image true si on ne veut pas afficher les images
+   * @throws IOException appel au constructeur de ServerSocket
+   */
+  public Server(int port, boolean no_image) throws IOException {
+    this.listener = new ServerSocket(port);
+    this.pool = Executors.newWorkStealingPool();
+    this.no_image = no_image;
+  }
+
+  /**
+   * Constructeur du serveur sur le port par défaut (80)
+   * 
+   * @param no_image true si on ne veut pas afficher les images
+   * @throws IOException appel au constructeur de ServerSocket
+   */
+  public Server(boolean no_image) throws IOException {
+    this(DEFAULT_PORT, no_image);
+  }
+
+  /**
+   * Constructeur du serveur sur le port par défaut (80)
    * 
    * @param port Le port d'écoute du serveur
    * @throws IOException appel au constructeur de ServerSocket
    */
   public Server(int port) throws IOException {
-    this.listener = new ServerSocket(port);
-    this.pool = Executors.newWorkStealingPool();
+    this(port, false);
   }
 
   /**
@@ -29,7 +53,7 @@ public class Server {
    * @throws IOException appel au constructeur de ServerSocket
    */
   public Server() throws IOException {
-    this(DEFAULT_PORT);
+    this(DEFAULT_PORT, false);
   }
 
   /**
@@ -44,9 +68,8 @@ public class Server {
         ClientHandler client;
         Socket clientSocket = listener.accept();
         System.out.println("Client connected succesfully");
-
         // Création et execution d'un nouveau thread
-        client = new ClientHandler(clientSocket);
+        client = new ClientHandler(clientSocket, no_image);
         pool.submit(client);
       }
     } catch (IOException e) {
@@ -59,8 +82,7 @@ public class Server {
    * Arrête les threads et stop le serveur
    */
   public void serverShutdown() {
-    System.out.println("Arrêt du serveur...");
-    System.out.println("Arrêt des threads");
+    System.out.println("Server shutting down...");
     // Arret des threads
     pool.shutdown();
     try {

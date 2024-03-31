@@ -1,5 +1,5 @@
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 // Classe permettant de gérer les sessions
 public class SessionManager {
@@ -20,7 +20,7 @@ public class SessionManager {
    * 
    * @return l'instance unique de la classe
    */
-  public static SessionManager getInstance() {
+  public static synchronized SessionManager getInstance() {
     if (instance == null) {
       instance = new SessionManager();
     }
@@ -35,6 +35,8 @@ public class SessionManager {
   public String createSession() {
     String sessionId = UUID.randomUUID().toString();
     sessions.put(sessionId, new HashMap<>());
+    setAttribute(sessionId, "scheduler", Executors.newSingleThreadScheduledExecutor());
+    updateSession(sessionId);
     return sessionId;
   }
 
@@ -65,6 +67,28 @@ public class SessionManager {
       return session.get(attributeName);
     }
     return null;
+  }
+
+  /**
+   * Permet de mettre à jour une session
+   * 
+   * @param sessionId l'identifiant de la session
+   */
+  public void updateSession(String sessionId) {
+    // Création du scheduler si la session n'existe pas coté serveur
+    if (sessions.get(sessionId) == null) {
+      sessions.put(sessionId, new HashMap<>());
+      setAttribute(sessionId, "scheduler", Executors.newSingleThreadScheduledExecutor());
+    }
+    // Annulation du scheduledFuture destructeur de la session
+    ScheduledFuture<?> destroyer = (ScheduledFuture<?>) getAttribute(sessionId, "destroyer");
+    if (destroyer != null) {
+      destroyer.cancel(true);
+    }
+    // Remplacement du scheduledFuture par un nouveau destructeur afin de prolonger
+    ScheduledExecutorService scheduler = (ScheduledExecutorService) getAttribute(sessionId, "scheduler");
+    destroyer = scheduler.schedule(() -> destroySession(sessionId), 15, TimeUnit.MINUTES);
+    setAttribute(sessionId, "destroyer", destroyer);
   }
 
   /**

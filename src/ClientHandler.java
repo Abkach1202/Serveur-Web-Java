@@ -1,25 +1,31 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 // Classe représentant un client et son thread coté serveur
 public class ClientHandler implements Runnable {
   // Le socket de communication avec le client
-  private final Socket clientSocket;
+  private Socket clientSocket;
   // Les cookies envoyés par le client
   private Map<String, String> cookies;
+  // Les paramètres de la requête
+  private Map<String, String> params;
+  // afficher les images ou non
+  private boolean no_image;
 
   /**
    * Constructeur de la classe
    * 
    * @param clientSocket le socket permettant la communication avec le client
+   * @param no_image     true si on ne veut pas afficher les images
    * @throws IOException appel aux fontions clientSocket.getInputStream() et
    *                     clientSocket.getOutputStream()
    */
-  public ClientHandler(Socket clientSocket) throws IOException {
+  public ClientHandler(Socket clientSocket, boolean no_image) throws IOException {
     this.clientSocket = clientSocket;
+    this.no_image = no_image;
     this.cookies = new HashMap<>();
+    this.params = new HashMap<>();
   }
 
   /**
@@ -30,8 +36,30 @@ public class ClientHandler implements Runnable {
   private void parseCookies(String cookieString) {
     for (String pair : cookieString.split("; ")) {
       String[] keyValue = pair.split("=");
-      cookies.put(keyValue[0], keyValue[1]);
+      if (!cookies.containsKey(keyValue[0])) {
+        cookies.put(keyValue[0], keyValue[1]);
+      }
     }
+  }
+
+  /**
+   * Elle permet de parser le lien et les paramètres envoyés par le client
+   * 
+   * @param line la chaine de caractères contenant le lien et les paramètres
+   * @return une map contenant les paramètres
+   */
+  private String parseParams(String line) throws UnsupportedEncodingException {
+    String[] parts = line.split("\\?");
+    if (parts.length == 2) {
+      for (String pair : parts[1].split("&")) {
+        String[] keyValue = pair.split("=");
+        params.put(URLDecoder.decode(keyValue[0], "UTF-8"), URLDecoder.decode(keyValue[1], "UTF-8"));
+      }
+    }
+    if (params.containsKey("no-image")) {
+      cookies.put("no-image", params.get("no-image").equals("false") ? "false" : "true");
+    }
+    return parts[0].substring(1);
   }
 
   /**
@@ -42,20 +70,22 @@ public class ClientHandler implements Runnable {
    */
   private Response readRequest() throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    String line, requestedFile = null;
+    String line, link = null;
     // Lecture de la requête
     while ((line = reader.readLine()) != null && !line.isEmpty()) {
       // Récupération du fichier demandé
       if (line.startsWith("GET")) {
-        requestedFile = line.split(" ")[1];
-        requestedFile = requestedFile.substring(1);
+        link = parseParams(line.split(" ")[1]);
       }
       // Récupération des cookies
       if (line.startsWith("Cookie")) {
         parseCookies(line.substring(8));
       }
     }
-    return Response.getResponse(requestedFile);
+    if (cookies.containsKey("no-image")) {
+      no_image = no_image || cookies.get("no-image").equals("true");
+    }
+    return Response.getResponse(link, no_image, params);
   }
 
   /**
@@ -65,30 +95,20 @@ public class ClientHandler implements Runnable {
    */
   private void manageSession(Response response) {
     SessionManager sessionManager = SessionManager.getInstance();
-    
-    // Création d'une nouvelle session s'il n'y en a pas une
-    if (cookies.containsKey("sessionId")) {
-      String sessionId = sessionManager.createSession();
-      sessionManager.setAttribute(sessionId, "scheduler", Executors.newSingleThreadScheduledExecutor());
-      cookies.put("sessionId", sessionId);
+    String sessionId;
+    // Création ou Prologation de la session au niveau du serveur
+    if (!cookies.containsKey("sessionId")) {
+      sessionId = sessionManager.createSession();
+    } else {
+      sessionId = cookies.get("sessionId");
+      sessionManager.updateSession(sessionId);
     }
     // Création ou Prologation de la session au niveau du client
-    response.setCookie("sessionId", cookies.get("sessionId"), 60 * 15);
-
-    // On annule la destruction de la session pour la prolonger
-    ScheduledFuture<?> sessionDestroyer = (ScheduledFuture<?>) sessionManager
-        .getAttribute(cookies.get("sessionId"), "sessionDestroyer");
-    if (sessionDestroyer != null) {
-      sessionDestroyer.cancel(true);
+    response.setCookie("sessionId", sessionId, 60 * 15);
+    // Envoie du cookie no-image
+    if (params.containsKey("no-image")) {
+      response.setCookie("no-image", cookies.get("no-image"), 60 * 15);
     }
-
-    // Prologation de la session au niveau du serveur
-    ScheduledExecutorService scheduler = (ScheduledExecutorService) sessionManager
-        .getAttribute(cookies.get("sessionId"), "scheduler");
-    sessionDestroyer = scheduler.schedule(() -> {
-      sessionManager.destroySession(cookies.get("sessionId"));
-    }, 15, TimeUnit.MINUTES);
-    sessionManager.setAttribute(cookies.get("sessionId"), "sessionDestroyer", sessionDestroyer);
   }
 
   @Override
@@ -101,7 +121,7 @@ public class ClientHandler implements Runnable {
       // Envoie de la reponse au client
       response.respond(clientSocket.getOutputStream());
       // Fermeture du socket
-      System.out.println("Deconnexion of client.." + System.lineSeparator());
+      System.out.println("Deconnexion of client..." + System.lineSeparator());
       clientSocket.close();
     } catch (IOException e) {
       System.err.println(e.getMessage());

@@ -1,8 +1,16 @@
 import java.io.*;
 import java.nio.file.*;
+import java.util.Map;
 
 // Interface représentant une reponse à une requête http
 public interface Response {
+  // Les codes de réponse
+  public static final int OK = 200;
+  public static final int NOT_FOUND = 404;
+
+  // Source des fichiers
+  public static final String DEFAULT_SOURCE = "html" + File.separator;
+
   /**
    * Elle permet de savoir si le fichier n'existe pas
    * 
@@ -15,42 +23,49 @@ public interface Response {
   }
 
   /**
+   * Elle permet de récupérer l'extension d'un fichier
+   * 
+   * @param path le chemin vers le fichier
+   * @return l'extension du fichier
+   */
+  public static String getExtension(String path) {
+    return path.substring(path.lastIndexOf('.') + 1);
+  }
+
+  /**
    * Elle permet d'avoir la bonne instance de l'interface Response en fonction de
    * l'existance du fichier et de son extension
    * 
-   * @param path le chemin vers le fichier dont on veut avoir la reponse
+   * @param path     le chemin vers le fichier dont on veut avoir la reponse
+   * @param no_image true si on ne veut pas afficher les images
    * @return Une instance de l'interface Response qui repond à la requête
    */
-  public static Response getResponse(String path) {
+  public static Response getResponse(String path, boolean no_image, Map<String, String> params) {
+    // Si le fichier n'existe pas
+    if (path == null || isfileNotFound(DEFAULT_SOURCE + path)) {
+      return new NotFoundResponse();
+    }
     if (path == "") {
-      path = "index.html";
+      return new TextResponse(DEFAULT_SOURCE + "index.html", "html");
     }
-    if (path == null || isfileNotFound("html/" + path)) {
-      return new Error404();
+    String extension = getExtension(path);
+    // Si c'est une image
+    if (extension.equals("png") || extension.equals("jpg")) {
+      return new ImageProxy(DEFAULT_SOURCE + path, extension, no_image);
     }
-    String extension = path.substring(path.lastIndexOf('.') + 1);
-    // Renvoie la bonne instance en fonction de l'extension
-    switch (extension) {
-      case "html":
-        return new HTMLResponse("html/" + path);
-      case "css":
-        return new CSSResponse("html/" + path);
-      case "js":
-        return new JSResponse("html/" + path);
-      case "png":
-        return new ImageProxy("html/" + path, "png");
-      case "jpg":
-        return new ImageProxy("html/" + path, "jpeg");
-      default:
-        return new UnknownResponse("html/" + path);
+    // Si c'est un template freeMarker
+    if (extension.equals("dlb") || extension.equals("ftl")) {
+      return new TextResponse(DEFAULT_SOURCE + path, extension);
     }
+    // Si c'est un fichier texte
+    return new TextResponse(DEFAULT_SOURCE + path, extension);
   }
 
   /**
    * Elle permet de savoir si le cookie existe
    * 
-   * @param key le nom du cookie
-   * @param value la valeur du cookie
+   * @param key    le nom du cookie
+   * @param value  la valeur du cookie
    * @param maxAge la durée de vie du cookie
    */
   public void setCookie(String key, String value, int maxAge);
