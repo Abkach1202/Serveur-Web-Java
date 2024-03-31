@@ -2,6 +2,9 @@ import java.io.*;
 import java.util.*;
 import freemarker.template.*;
 
+/**
+ * Classe représentant une réponse à une requête http sur un template Freemarker
+ */
 public class FreemarkerResponse implements Response {
   // La configuration de Freemarker
   private static Configuration cfg;
@@ -25,7 +28,8 @@ public class FreemarkerResponse implements Response {
   /**
    * Constructeur de la classe
    * 
-   * @param path le chemin vers le fichier à envoyer au client
+   * @param path  le chemin vers le fichier à envoyer au client
+   * @param datas les données à envoyer
    */
   public FreemarkerResponse(String path, Map<String, String> datas) {
     this.header = new Header("html", -1, Response.OK);

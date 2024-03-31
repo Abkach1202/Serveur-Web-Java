@@ -2,13 +2,22 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.Map;
 
-// Interface représentant une reponse à une requête http
+/**
+ * Interface représentant une reponse à une requête http
+ */
 public interface Response {
-  // Les codes de réponse
+  /**
+   * Le code de retour pour OK
+   */
   public static final int OK = 200;
+  /**
+   * Le code de retour pour NOT FOUND
+   */
   public static final int NOT_FOUND = 404;
 
-  // Source des fichiers
+  /**
+   * Le chemin par défaut des fichiers
+   */
   public static final String DEFAULT_SOURCE = "html" + File.separator;
 
   /**
@@ -38,6 +47,7 @@ public interface Response {
    * 
    * @param path     le chemin vers le fichier dont on veut avoir la reponse
    * @param no_image true si on ne veut pas afficher les images
+   * @param params   les paramètres de la requête
    * @return Une instance de l'interface Response qui repond à la requête
    */
   public static Response getResponse(String path, boolean no_image, Map<String, String> params) {
@@ -73,7 +83,8 @@ public interface Response {
   /**
    * Cette fonction donne une reponse au requête en écrivant au PrintWriter
    * 
-   * @param o l'outputStream par leqeuel on envoie le message
+   * @param o       l'outputStream par leqeuel on envoie le message
+   * @param cookies les cookies de la requête
    */
   public void respond(OutputStream o, Map<String, String> cookies);
 }

@@ -1,5 +1,11 @@
-// Classe permettant de tester le serveur
+/**
+ * Classe permettant de tester le serveur
+ */
 public class Main {
+  /**
+   * Fonction principale
+   * @param args les arguments de la ligne de commande
+   */
   public static void main(String[] args) {
     try {
       int port = 8080;

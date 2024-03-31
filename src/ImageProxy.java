@@ -3,7 +3,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 
-// Classe représentant un proxy pour les images
+/**
+ * Classe représentant un proxy pour les images
+ */
 public class ImageProxy implements Response {
   // Le cache des images déjà chargées pour eviter tout un nouveau chargement
   private static Map<String, Response> cache = new HashMap<>();

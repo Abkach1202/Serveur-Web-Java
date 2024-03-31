@@ -2,7 +2,9 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-// Classe représentant un client et son thread coté serveur
+/**
+ * Classe représentant un client et son thread coté serveur
+ */
 public class ClientHandler implements Runnable {
   // Le socket de communication avec le client
   private Socket clientSocket;

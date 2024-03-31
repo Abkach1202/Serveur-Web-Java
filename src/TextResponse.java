@@ -2,7 +2,9 @@ import java.io.*;
 import java.util.Map;
 import java.util.Scanner;
 
-// Classe permettant d'envoyer un fichier texte au client
+/**
+ * Classe permettant d'envoyer un fichier texte au client
+ */
 public class TextResponse implements Response {
   // L'en-tête de la réponse
   private Header header;
@@ -13,6 +15,7 @@ public class TextResponse implements Response {
    * Constructeur de la classe
    * 
    * @param path le chemin vers le fichier à envoyer au client
+   * @param extension l'extension du fichier
    */
   public TextResponse(String path, String extension) {
     this.file = new File(path);

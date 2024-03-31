@@ -2,9 +2,13 @@ import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 
-// Classe représentant le serveur dans le projet
+/**
+ * Classe représentant le serveur dans le projet
+ */
 public class Server {
-  // Le port par defaut du serveur
+  /**
+   * Le port par défaut du serveur
+   */
   public static final int DEFAULT_PORT = 80;
 
   // ServerSocket pour ecouter les nouveaux clients

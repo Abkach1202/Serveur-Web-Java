@@ -1,4 +1,6 @@
-// Classe permettant de representer un en-tête HTTP
+/**
+ * Classe permettant de representer un en-tête HTTP
+ */
 public class Header {
   // L'en-tête de la réponse
   private StringBuilder header;

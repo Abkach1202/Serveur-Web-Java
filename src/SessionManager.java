@@ -1,7 +1,9 @@
 import java.util.*;
 import java.util.concurrent.*;
 
-// Classe permettant de gérer les sessions
+/**
+ * Classe permettant de gérer les sessions
+ */
 public class SessionManager {
   // L'instance unique de la classe
   private static SessionManager instance = null;
@@ -40,6 +42,12 @@ public class SessionManager {
     return sessionId;
   }
 
+  /**
+   * Permet de récupérer les données d'une session
+   * 
+   * @param sessionId l'identifiant de la session
+   * @return les données de la session
+   */
   public Map<String, String> getDatas(String sessionId) {
     Map<String, String> convertedData = new HashMap<>();
     for (String key : sessions.get(sessionId).keySet()) {

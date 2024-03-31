@@ -1,7 +1,9 @@
 import java.io.*;
 import java.util.Map;
 
-// Classe permettant de répondre à une requête de fichier introuvable
+/**
+ * Classe permettant de répondre à une requête de fichier introuvable
+ */
 public class NotFoundResponse implements Response {
   // L'en-tête de la réponse
   private Header header;

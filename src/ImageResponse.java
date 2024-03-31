@@ -4,7 +4,9 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-// Classe permettant d'envoyer une image au client
+/**
+ * Classe permettant d'envoyer une image au client
+ */
 public class ImageResponse implements Response {
   // L'en-tête de la réponse
   private Header header;
